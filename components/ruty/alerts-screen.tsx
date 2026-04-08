@@ -109,13 +109,15 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
         })}
       </div>
 
-      {/* FAB para reportar */}
-      <button
-        onClick={() => setShowReportModal(true)}
-        className="fixed bottom-28 right-4 z-20 bg-primary text-primary-foreground p-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
+      {/* FAB para reportar - dentro del contenedor con posición absoluta */}
+      <div className="sticky bottom-4 flex justify-end px-4 pb-4 pointer-events-none">
+        <button
+          onClick={() => setShowReportModal(true)}
+          className="bg-primary text-primary-foreground p-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors pointer-events-auto"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+      </div>
 
       {/* Modal de reporte */}
       {showReportModal && (

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { Route, Stop, Alert } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface HomeScreenProps {
   favoriteRoutes: Route[]
@@ -13,9 +14,21 @@ interface HomeScreenProps {
   alerts?: Alert[]
   onSearch: () => void
   onSelectRoute?: (route: Route) => void
+  onViewAllRoutes?: () => void
+  onConfigureAlerts?: () => void
+  onSelectMode?: (mode: 'bus' | 'metro' | 'walk' | 'mixed') => void
 }
 
-export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch, onSelectRoute }: HomeScreenProps) {
+export function HomeScreen({
+  favoriteRoutes,
+  nearbyStops,
+  alerts = [],
+  onSearch,
+  onSelectRoute,
+  onViewAllRoutes,
+  onConfigureAlerts,
+  onSelectMode
+}: HomeScreenProps) {
   const activeAlerts = alerts.filter(a => a.type === 'delay' || a.type === 'closure').slice(0, 2)
 
   return (
@@ -88,7 +101,7 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
       </div>
 
       {/* Contenido scrolleable */}
-      <div className="flex-1 px-4 py-4 space-y-4">
+      <div className="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
 
         {/* Alertas activas */}
         {activeAlerts.length > 0 && (
@@ -115,6 +128,26 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
             </div>
           </section>
         )}
+
+        {/* Mapa de ubicación */}
+        <section>
+          <h2 className="font-semibold text-foreground mb-3">Tu ubicación</h2>
+          <Card className="overflow-hidden border shadow-sm">
+            <div className="relative">
+              <Image
+                src="/images/map-location.jpg"
+                alt="Mapa de tu ubicación"
+                width={400}
+                height={200}
+                className="w-full h-40 object-cover"
+              />
+              <div className="absolute bottom-2 left-2 bg-card rounded-lg shadow-lg px-3 py-1.5 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-xs font-medium text-foreground">Estás aquí</span>
+              </div>
+            </div>
+          </Card>
+        </section>
 
         {/* Próximas salidas cercanas */}
         <section>
@@ -162,7 +195,12 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-foreground">Tus rutas guardadas</h2>
-            <Button variant="ghost" size="sm" className="text-xs text-primary h-auto p-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-primary h-auto p-0"
+              onClick={onViewAllRoutes}
+            >
               Ver todas
             </Button>
           </div>
@@ -221,13 +259,14 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
           <h2 className="font-semibold text-foreground mb-3">Explorar por modo</h2>
           <div className="grid grid-cols-4 gap-2">
             {[
-              { icon: Bus, label: 'Bus', color: 'bg-primary/20 text-primary' },
-              { icon: Train, label: 'Metro', color: 'bg-accent/20 text-accent' },
-              { icon: Footprints, label: 'Caminar', color: 'bg-emerald-500/20 text-emerald-600' },
-              { icon: Navigation, label: 'Mixto', color: 'bg-amber-500/20 text-amber-600' },
+              { id: 'bus' as const, icon: Bus, label: 'Bus', color: 'bg-primary/20 text-primary' },
+              { id: 'metro' as const, icon: Train, label: 'Metro', color: 'bg-accent/20 text-accent' },
+              { id: 'walk' as const, icon: Footprints, label: 'Caminar', color: 'bg-emerald-500/20 text-emerald-600' },
+              { id: 'mixed' as const, icon: Navigation, label: 'Mixto', color: 'bg-amber-500/20 text-amber-600' },
             ].map((mode) => (
               <button
                 key={mode.label}
+                onClick={() => onSelectMode?.(mode.id)}
                 className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border hover:bg-secondary transition-colors"
               >
                 <div className={cn('p-2 rounded-lg', mode.color)}>
@@ -280,9 +319,12 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
           </div>
         </section>
 
-        {/* Banner informativo */}
+        {/* Banner informativo - ahora funcional */}
         <section className="pb-4">
-          <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-0">
+          <Card
+            className="bg-gradient-to-r from-primary/10 to-accent/10 border-0 cursor-pointer hover:from-primary/15 hover:to-accent/15 transition-colors"
+            onClick={onConfigureAlerts}
+          >
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/20 rounded-full p-2">
