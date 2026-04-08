@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { AuthScreen } from '@/components/ruty/auth-screen'
 import { BottomNav } from '@/components/ruty/bottom-nav'
 import { HomeScreen } from '@/components/ruty/home-screen'
 import { SearchScreen } from '@/components/ruty/search-screen'
@@ -8,16 +9,17 @@ import { NavigationScreen } from '@/components/ruty/navigation-screen'
 import { RoutesScreen } from '@/components/ruty/routes-screen'
 import { WalletScreen } from '@/components/ruty/wallet-screen'
 import { AlertsScreen } from '@/components/ruty/alerts-screen'
-import { 
-  favoriteRoutes, 
-  searchResults, 
-  transactions as initialTransactions, 
+import {
+  favoriteRoutes,
+  searchResults,
+  transactions as initialTransactions,
   alerts as initialAlerts,
-  nearbyStops 
+  nearbyStops
 } from '@/lib/mock-data'
 import type { Screen, Route, Alert, Transaction } from '@/lib/types'
 
 export default function RutyApp() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentScreen, setCurrentScreen] = useState<Screen>('home')
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null)
   const [balance, setBalance] = useState(15.50)
@@ -31,11 +33,24 @@ export default function RutyApp() {
     'Hospital Central'
   ]
 
+  const handleAuthenticated = () => {
+    setIsAuthenticated(true)
+  }
+
   const handleNavigate = (screen: Screen) => {
     setCurrentScreen(screen)
     if (screen !== 'navigation') {
       setSelectedRoute(null)
     }
+  }
+
+  // Si no está autenticado, mostrar pantalla de login/registro
+  if (!isAuthenticated) {
+    return (
+      <main className="min-h-screen max-w-lg mx-auto bg-background">
+        <AuthScreen onAuthenticated={handleAuthenticated} />
+      </main>
+    )
   }
 
   const handleSearch = () => {
@@ -73,7 +88,7 @@ export default function RutyApp() {
     switch (currentScreen) {
       case 'home':
         return (
-          <HomeScreen 
+          <HomeScreen
             favoriteRoutes={favoriteRoutes}
             nearbyStops={nearbyStops}
             alerts={alerts}
@@ -83,7 +98,7 @@ export default function RutyApp() {
         )
       case 'search':
         return (
-          <SearchScreen 
+          <SearchScreen
             searchResults={searchResults}
             onBack={() => setCurrentScreen('home')}
             onSelectRoute={handleSelectRoute}
@@ -91,14 +106,14 @@ export default function RutyApp() {
         )
       case 'navigation':
         return selectedRoute ? (
-          <NavigationScreen 
+          <NavigationScreen
             route={selectedRoute}
             onClose={() => setCurrentScreen('home')}
           />
         ) : null
       case 'routes':
         return (
-          <RoutesScreen 
+          <RoutesScreen
             favoriteRoutes={favoriteRoutes}
             recentSearches={recentSearches}
             onSearch={handleSearch}
@@ -107,7 +122,7 @@ export default function RutyApp() {
         )
       case 'wallet':
         return (
-          <WalletScreen 
+          <WalletScreen
             balance={balance}
             transactions={transactions}
             onRecharge={handleRecharge}
@@ -115,7 +130,7 @@ export default function RutyApp() {
         )
       case 'alerts':
         return (
-          <AlertsScreen 
+          <AlertsScreen
             alerts={alerts}
             onAddAlert={handleAddAlert}
           />
@@ -130,9 +145,9 @@ export default function RutyApp() {
       <div className="h-screen overflow-y-auto pb-20">
         {renderScreen()}
       </div>
-      <BottomNav 
-        currentScreen={currentScreen} 
-        onNavigate={handleNavigate} 
+      <BottomNav
+        currentScreen={currentScreen}
+        onNavigate={handleNavigate}
       />
     </main>
   )

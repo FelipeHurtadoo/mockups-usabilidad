@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, ArrowLeft, Zap, ArrowRightLeft, DollarSign, Accessibility, Clock, Footprints, Bus, Train, ChevronRight } from 'lucide-react'
+import { Search, ArrowLeft, Zap, ArrowRightLeft, DollarSign, Accessibility, Clock, Footprints, Bus, Train, ChevronRight, Leaf, MapPin } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -18,7 +18,9 @@ const filters = [
   { id: 'fast', label: 'Más rápida', icon: Zap },
   { id: 'transfers', label: 'Menos transbordos', icon: ArrowRightLeft },
   { id: 'cheap', label: 'Más económica', icon: DollarSign },
+  { id: 'walk', label: 'Menos caminata', icon: Footprints },
   { id: 'accessible', label: 'Accesible', icon: Accessibility },
+  { id: 'eco', label: 'Ecológica', icon: Leaf },
 ]
 
 export function SearchScreen({ searchResults, onBack, onSelectRoute }: SearchScreenProps) {
@@ -33,6 +35,23 @@ export function SearchScreen({ searchResults, onBack, onSelectRoute }: SearchScr
         return a.transfers - b.transfers
       case 'cheap':
         return a.cost - b.cost
+      case 'walk':
+        return a.walkDistance - b.walkDistance
+      case 'accessible':
+        // Prioriza rutas con más accesibilidad
+        const aAccessible = a.steps.filter(s => s.accessibility?.hasElevator || s.accessibility?.hasRamp).length
+        const bAccessible = b.steps.filter(s => s.accessibility?.hasElevator || s.accessibility?.hasRamp).length
+        return bAccessible - aAccessible
+      case 'eco':
+        // Prioriza metro y caminata sobre bus
+        const ecoScore = (route: Route) => {
+          return route.steps.reduce((score, step) => {
+            if (step.type === 'walk') return score + 3
+            if (step.type === 'metro') return score + 2
+            return score + 1
+          }, 0)
+        }
+        return ecoScore(b) - ecoScore(a)
       default:
         return 0
     }
@@ -48,7 +67,7 @@ export function SearchScreen({ searchResults, onBack, onSelectRoute }: SearchScr
           </Button>
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
+            <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="¿A dónde vas?"
@@ -56,7 +75,7 @@ export function SearchScreen({ searchResults, onBack, onSelectRoute }: SearchScr
             />
           </div>
         </div>
-        
+
         {/* Filtros tipo píldora */}
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           {filters.map((filter) => (
@@ -76,16 +95,16 @@ export function SearchScreen({ searchResults, onBack, onSelectRoute }: SearchScr
           ))}
         </div>
       </div>
-      
+
       {/* Resultados */}
       <div className="p-4 space-y-3">
         <p className="text-sm text-muted-foreground">
           {filteredResults.length} rutas encontradas hacia {searchQuery}
         </p>
-        
+
         {filteredResults.map((route) => (
-          <Card 
-            key={route.id} 
+          <Card
+            key={route.id}
             className="hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => onSelectRoute(route)}
           >
@@ -105,7 +124,7 @@ export function SearchScreen({ searchResults, onBack, onSelectRoute }: SearchScr
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
-              
+
               {/* Detalles de la ruta */}
               <div className="grid grid-cols-4 gap-2 text-center">
                 <div className="bg-secondary rounded-lg p-2">
@@ -129,7 +148,7 @@ export function SearchScreen({ searchResults, onBack, onSelectRoute }: SearchScr
                   <p className="text-xs text-muted-foreground">Transbordos</p>
                 </div>
               </div>
-              
+
               {/* Vista previa de pasos */}
               <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
                 {route.steps.map((step, index) => (

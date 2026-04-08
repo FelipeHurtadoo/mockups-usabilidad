@@ -13,11 +13,12 @@ interface AlertsScreenProps {
   onAddAlert: (alert: Omit<Alert, 'id' | 'timestamp' | 'votes'>) => void
 }
 
-const alertTypeConfig = {
+const alertTypeConfig: Record<string, { icon: typeof Clock, color: string, bg: string, label: string }> = {
   delay: { icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'Retraso' },
   cancel: { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10', label: 'Cancelado' },
   crowded: { icon: Users, color: 'text-primary', bg: 'bg-primary/10', label: 'Lleno' },
   closed: { icon: AlertTriangle, color: 'text-accent', bg: 'bg-accent/10', label: 'Cerrado' },
+  closure: { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10', label: 'Cierre' },
 }
 
 export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
@@ -29,9 +30,9 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
   const [localAlerts, setLocalAlerts] = useState(alerts)
 
   const handleVote = (alertId: string) => {
-    setLocalAlerts(prev => 
-      prev.map(alert => 
-        alert.id === alertId 
+    setLocalAlerts(prev =>
+      prev.map(alert =>
+        alert.id === alertId
           ? { ...alert, votes: alert.votes + 1 }
           : alert
       )
@@ -65,13 +66,13 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
           Información en tiempo real de otros usuarios
         </p>
       </div>
-      
+
       {/* Feed de alertas */}
       <div className="p-4 space-y-3">
         {localAlerts.map((alert) => {
           const config = alertTypeConfig[alert.type]
           const Icon = config.icon
-          
+
           return (
             <Card key={alert.id} className="overflow-hidden">
               <CardContent className="p-4">
@@ -90,9 +91,9 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
                     </div>
                     <h3 className="font-semibold text-foreground">{alert.title}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{alert.description}</p>
-                    
+
                     <div className="flex items-center gap-4 mt-3">
-                      <button 
+                      <button
                         onClick={() => handleVote(alert.id)}
                         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
                       >
@@ -107,18 +108,18 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
           )
         })}
       </div>
-      
+
       {/* FAB para reportar */}
       <button
         onClick={() => setShowReportModal(true)}
-        className="absolute bottom-28 right-4 z-20 bg-primary text-primary-foreground p-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+        className="fixed bottom-28 right-4 z-20 bg-primary text-primary-foreground p-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors"
       >
         <Plus className="h-6 w-6" />
       </button>
-      
+
       {/* Modal de reporte */}
       {showReportModal && (
-        <div className="absolute inset-0 bg-foreground/50 z-50 flex items-end">
+        <div className="fixed inset-0 bg-foreground/50 z-50 flex items-end">
           <div className="bg-card w-full rounded-t-3xl p-6 animate-in slide-in-from-bottom max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-foreground">Reportar incidencia</h3>
@@ -126,7 +127,7 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            
+
             {/* Tipo de incidencia */}
             <div className="mb-4">
               <label className="text-sm font-medium text-foreground mb-2 block">Tipo de incidencia</label>
@@ -140,8 +141,8 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
                       onClick={() => setReportType(type)}
                       className={cn(
                         'flex items-center gap-2 p-3 rounded-lg border-2 transition-colors',
-                        reportType === type 
-                          ? 'border-primary bg-primary/10' 
+                        reportType === type
+                          ? 'border-primary bg-primary/10'
                           : 'border-border hover:border-muted-foreground'
                       )}
                     >
@@ -152,39 +153,39 @@ export function AlertsScreen({ alerts, onAddAlert }: AlertsScreenProps) {
                 })}
               </div>
             </div>
-            
+
             {/* Línea/Estación */}
             <div className="mb-4">
               <label className="text-sm font-medium text-foreground mb-2 block">Línea o estación</label>
-              <Input 
+              <Input
                 value={reportLine}
                 onChange={(e) => setReportLine(e.target.value)}
                 placeholder="Ej: Metro L1, Bus 101, Estación Central"
               />
             </div>
-            
+
             {/* Título */}
             <div className="mb-4">
               <label className="text-sm font-medium text-foreground mb-2 block">Título del reporte</label>
-              <Input 
+              <Input
                 value={reportTitle}
                 onChange={(e) => setReportTitle(e.target.value)}
                 placeholder="Ej: Retraso de 15 minutos"
               />
             </div>
-            
+
             {/* Descripción */}
             <div className="mb-6">
               <label className="text-sm font-medium text-foreground mb-2 block">Descripción (opcional)</label>
-              <Input 
+              <Input
                 value={reportDescription}
                 onChange={(e) => setReportDescription(e.target.value)}
                 placeholder="Añade más detalles..."
               />
             </div>
-            
-            <Button 
-              className="w-full h-12" 
+
+            <Button
+              className="w-full h-12"
               onClick={handleSubmitReport}
               disabled={!reportLine || !reportTitle}
             >

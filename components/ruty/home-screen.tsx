@@ -1,12 +1,11 @@
 'use client'
 
-import { Search, Clock, Bus, Train, ChevronRight, MapPin, Star, Footprints, ArrowRight, Navigation, AlertTriangle } from 'lucide-react'
+import { Search, Clock, Bus, Train, ChevronRight, MapPin, Star, Footprints, ArrowRight, Navigation, AlertTriangle, Bike, Zap } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { Route, Stop, Alert } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import Link from 'next/link'
 
 interface HomeScreenProps {
   favoriteRoutes: Route[]
@@ -18,7 +17,7 @@ interface HomeScreenProps {
 
 export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch, onSelectRoute }: HomeScreenProps) {
   const activeAlerts = alerts.filter(a => a.type === 'delay' || a.type === 'closure').slice(0, 2)
-  
+
   return (
     <div className="flex flex-col min-h-full">
       {/* Header con logo */}
@@ -34,7 +33,7 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
             </div>
           </div>
         </div>
-        
+
         {/* Ubicación actual */}
         <div className="flex items-center gap-2 text-primary-foreground/90 text-sm">
           <MapPin className="h-4 w-4" />
@@ -46,37 +45,37 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
       <div className="px-4 -mt-10 relative z-10">
         <Card className="shadow-lg border-0">
           <CardContent className="p-4">
-            <button 
+            <button
               onClick={onSearch}
               className="w-full flex items-center gap-3 p-3 bg-secondary rounded-xl text-left hover:bg-secondary/80 transition-colors"
             >
               <Search className="h-5 w-5 text-muted-foreground" />
               <span className="text-muted-foreground">¿A dónde quieres ir?</span>
             </button>
-            
+
             {/* Accesos rápidos */}
             <div className="flex gap-2 mt-3">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex-1 gap-2 text-xs"
                 onClick={onSearch}
               >
                 <Star className="h-3.5 w-3.5 text-amber-500" />
                 Casa
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex-1 gap-2 text-xs"
                 onClick={onSearch}
               >
                 <Star className="h-3.5 w-3.5 text-amber-500" />
                 Trabajo
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex-1 gap-2 text-xs"
                 onClick={onSearch}
               >
@@ -90,7 +89,7 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
 
       {/* Contenido scrolleable */}
       <div className="flex-1 px-4 py-4 space-y-4">
-        
+
         {/* Alertas activas */}
         {activeAlerts.length > 0 && (
           <section>
@@ -100,12 +99,12 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
             </div>
             <div className="space-y-2">
               {activeAlerts.map((alert) => (
-                <div 
+                <div
                   key={alert.id}
                   className={cn(
                     "p-3 rounded-lg border-l-4",
-                    alert.type === 'closure' 
-                      ? "bg-destructive/10 border-l-destructive" 
+                    alert.type === 'closure'
+                      ? "bg-destructive/10 border-l-destructive"
                       : "bg-amber-500/10 border-l-amber-500"
                   )}
                 >
@@ -123,7 +122,7 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
             <h2 className="font-semibold text-foreground">Próximas salidas</h2>
             <span className="text-xs text-muted-foreground">A 5 min caminando</span>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-3">
             {nearbyStops.slice(0, 4).map((stop) => (
               <Card key={stop.id} className="border shadow-sm">
@@ -167,11 +166,11 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
               Ver todas
             </Button>
           </div>
-          
+
           <div className="space-y-2">
             {favoriteRoutes.slice(0, 3).map((route) => (
-              <Card 
-                key={route.id} 
+              <Card
+                key={route.id}
                 className="border shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => onSelectRoute?.(route)}
               >
@@ -222,23 +221,62 @@ export function HomeScreen({ favoriteRoutes, nearbyStops, alerts = [], onSearch,
           <h2 className="font-semibold text-foreground mb-3">Explorar por modo</h2>
           <div className="grid grid-cols-4 gap-2">
             {[
-              { icon: Bus, label: 'Bus', color: 'bg-primary/20 text-primary', href: '/?mode=bus' },
-              { icon: Train, label: 'Metro', color: 'bg-accent/20 text-accent', href: '/?mode=metro' },
-              { icon: Footprints, label: 'Caminar', color: 'bg-emerald-500/20 text-emerald-600', href: '/?mode=walk' },
-              { icon: Navigation, label: 'Mixto', color: 'bg-amber-500/20 text-amber-600', href: '/?mode=mixed' },
+              { icon: Bus, label: 'Bus', color: 'bg-primary/20 text-primary' },
+              { icon: Train, label: 'Metro', color: 'bg-accent/20 text-accent' },
+              { icon: Footprints, label: 'Caminar', color: 'bg-emerald-500/20 text-emerald-600' },
+              { icon: Navigation, label: 'Mixto', color: 'bg-amber-500/20 text-amber-600' },
             ].map((mode) => (
-              <Link 
-                href={mode.href}
+              <button
                 key={mode.label}
                 className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border hover:bg-secondary transition-colors"
-                onClick={onSearch}
               >
                 <div className={cn('p-2 rounded-lg', mode.color)}>
                   <mode.icon className="h-5 w-5" />
                 </div>
                 <span className="text-xs font-medium text-foreground">{mode.label}</span>
-              </Link>
+              </button>
             ))}
+          </div>
+        </section>
+
+        {/* Servicios de última milla */}
+        <section>
+          <h2 className="font-semibold text-foreground mb-3">Última milla</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="border shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-500/20 p-2.5 rounded-xl">
+                    <Bike className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Bicicletas</p>
+                    <p className="text-xs text-muted-foreground">12 disponibles cerca</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Desde</span>
+                  <span className="font-semibold text-foreground">$0.50/min</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-lime-500/20 p-2.5 rounded-xl">
+                    <Zap className="h-6 w-6 text-lime-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Scooters</p>
+                    <p className="text-xs text-muted-foreground">8 disponibles cerca</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Desde</span>
+                  <span className="font-semibold text-foreground">$0.75/min</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
